@@ -32,7 +32,8 @@ jobs:
         shell: pwsh
         run: Get-FileHash installer/output/*.exe | Format-Table -AutoSize
 
-      - name: Upload artifact
+      - name: Upload artifact (non-tag runs only; tags publish via Release)
+        if: github.event_name != 'push'
         uses: actions/upload-artifact@v4
         with:
           name: Setup-SMS-DropboxOpener
