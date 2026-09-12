@@ -1,0 +1,44 @@
+# Build SMS-DropboxOpener helper + Setup.
+# Usage: .\scripts\build.ps1 [-Version X.Y.Z]
+# Compiles the helper with the .NET Framework compiler shipped with Windows,
+# then compiles the Inno installer. Output: installer\output\Setup-SMS-DropboxOpener-v<Version>.exe
+param(
+    [string]$Version = '0.1.0'
+)
+$ErrorActionPreference = 'Stop'
+$root = Split-Path $PSScriptRoot -Parent
+
+# CI passes ref_name (e.g. v0.1.2); strip the v prefix
+if ($Version -match '^v') { $Version = $Version.Substring(1) }
+
+function Find-Iscc {
+    $candidates = @(
+        (Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'),
+        (Join-Path $env:ProgramFiles 'Inno Setup 6\ISCC.exe'),
+        (Join-Path $env:LOCALAPPDATA 'Programs\Inno Setup 6\ISCC.exe')
+    )
+    foreach ($p in $candidates) { if (Test-Path $p) { return $p } }
+    throw "Inno Setup 6 (ISCC.exe) not found. Install via: winget install JRSoftware.InnoSetup"
+}
+
+# 1) Compile helper (inbox .NET Framework csc — no SDK needed)
+$csc = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
+if (-not (Test-Path $csc)) { $csc = Join-Path $env:WINDIR 'Microsoft.NET\Framework\v4.0.30319\csc.exe' }
+$out = Join-Path $root 'out'
+$null = New-Item -ItemType Directory -Force $out
+& $csc /nologo /warn:0 /target:winexe /platform:anycpu /out:"$out\DropboxOpener.exe" `
+    /reference:System.Web.dll `
+    (Join-Path $root 'src\DropboxOpener.cs')
+if ($LASTEXITCODE -ne 0) { throw "csc failed" }
+
+# 2) Compile installer
+$iscc = Find-Iscc
+& $iscc "/DAppVersion=$Version" (Join-Path $root 'installer\DropboxOpener.iss')
+if ($LASTEXITCODE -ne 0) { throw "ISCC failed" }
+
+Write-Host "Done: installer\output\Setup-SMS-DropboxOpener-v$Version.exe"
+
+# Print SHA-256 of every output installer (for SMS-toolkit digest verification)
+Get-ChildItem (Join-Path $root 'installer\output\*.exe') | ForEach-Object {
+    (Get-FileHash $_.FullName).Hash
+}

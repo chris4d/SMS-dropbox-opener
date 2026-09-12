@@ -1,0 +1,46 @@
+name: build-setup
+
+on:
+  workflow_dispatch:
+    inputs: {}
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: winget install --id JRSoftware.InnoSetup --silent --accept-package-agreements --accept-source-agreements
+
+      - name: Build Setup.exe
+        shell: pwsh
+        run: |
+          $ver = switch ('${{ github.event_name }}') {
+            'push' { '${{ github.ref_name }}' }
+            default { '0.0.0-dev' }
+          }
+          .\scripts\build.ps1 -Version $ver
+
+      - name: Checksums
+        shell: pwsh
+        run: Get-FileHash installer/output/*.exe | Format-Table -AutoSize
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Setup-SMS-DropboxOpener
+          path: installer/output/*.exe
+
+      - name: Publish release (tag push only)
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: installer/output/*.exe
+          generate_release_notes: true
