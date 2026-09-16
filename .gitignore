@@ -1,2 +1,4 @@
 out/
 installer/output/
+
+.playwright-mcp/
