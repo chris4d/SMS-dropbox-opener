@@ -1,0 +1,1 @@
+[      56ms] [ERROR] Failed to launch 'opendbx://Projects/Contracts%20Folder' because the scheme does not have a registered handler. @ http://localhost:8642/open.html?p=Projects/Contracts%20Folder:0

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Opening in Dropbox…</title>
+<title>Open in File Explorer</title>
 <style>
   body { font-family: "Segoe UI", system-ui, sans-serif; background: #f6f6f6;
          color: #333; display: flex; height: 100vh; margin: 0; }
@@ -12,61 +12,57 @@
   p { line-height: 1.5; margin: .5rem 0; }
   code { background: #eef; padding: .1rem .4rem; border-radius: 4px;
          word-break: break-all; }
-  button { margin-top: 1rem; padding: .4rem .8rem; border: 1px solid #888;
-           border-radius: 4px; background: #eee; cursor: pointer; }
-  #fallback { display: none; color: #7a4e00; }
+  button { font-size: 1rem; padding: .5rem 1.1rem; border: 1px solid #4472c4;
+           border-radius: 4px; background: #4472c4; color: #fff; cursor: pointer; }
+  #trouble { display: none; color: #7a4e00; margin-top: 1rem; }
 </style>
 </head>
 <body>
 <main>
-  <div id="status"><h1 id="heading">Opening…</h1><p id="detail"></p></div>
-  <div id="fallback">
-    <h1>The folder didn't open.</h1>
-    <p>The location was:</p>
-    <p><code id="target"></code></p>
-    <p>Either the <strong>SMS DropboxOpener</strong> helper isn't installed on
-       this machine, or this folder isn't synced locally. Please let IT know
-       (include the location above).</p>
-    <button id="copy">Copy location</button>
+  <h1>Open in File Explorer</h1>
+  <p>Folder:</p>
+  <p><code id="targetLabel"></code></p>
+  <button id="open">Open folder</button>
+  <div id="trouble">
+    Explorer didn't open. Either the <strong>SMS DropboxOpener</strong> helper
+    isn't installed on this machine, or the folder isn't synced locally.
+    Please let IT know (include the location above).
+    <p><button type="button" id="retry" style="background:#eee;color:#333;border-color:#888;font-size:.85rem">Try again</button></p>
   </div>
 </main>
 <script>
 (function () {
   var u = new URLSearchParams(location.search);
   var p = (u.get('p') || '').trim();
-  var status = document.getElementById('status');
-  var fallback = document.getElementById('fallback');
+  var targetLabel = document.getElementById('targetLabel');
+  var open = document.getElementById('open');
+  var trouble = document.getElementById('trouble');
 
   if (!p) {
-    status.querySelector('h1').textContent = 'No location given.';
-    status.querySelector('p').textContent =
-      'This page is meant to be reached from an intranet link, e.g. open.html?p=Projects.';
+    document.querySelector('h1').textContent = 'No location given.';
+    targetLabel.textContent =
+      'This page is reached from intranet links, e.g. open.html?p=Projects.';
+    open.style.display = 'none';
     return;
   }
 
-  // Build opendbx://business/<path> — the prefix is fixed, never attacker-derived.
+  // Fixed scheme prefix; the query string can never produce another scheme.
   var target = 'opendbx://' +
     p.split('/').map(encodeURIComponent).join('/');
+  targetLabel.textContent = target;
 
-  status.querySelector('p').appendChild(
-    Object.assign(document.createElement('span'), { textContent: target })
-  );
+  function launch() {
+    trouble.style.display = 'none';
+    // A user gesture is required for custom-scheme navigation in
+    // Chrome/Edge, so this must live inside a click handler.
+    try { location.replace(target); } catch (e) { showTrouble(); }
+    // If the helper answered, this page unloads and nothing else runs.
+    setTimeout(showTrouble, 1500);
+  }
+  function showTrouble() { trouble.style.display = 'block'; }
 
-  // If the helper handles the request, this page unloads and the
-  // fallback is never painted. Otherwise it explains what happened.
-  setTimeout(function () {
-    status.style.display = 'none';
-    document.getElementById('target').textContent = target;
-    fallback.style.display = 'block';
-  }, 1200);
-
-  document.getElementById('copy').addEventListener('click', function () {
-    navigator.clipboard.writeText(target).then(function () {
-      this.textContent = 'Copied!';
-    }.bind(this));
-  });
-
-  try { location.replace(target); } catch (e) { /* fallback stays visible */ }
+  open.addEventListener('click', launch);
+  document.getElementById('retry').addEventListener('click', launch);
 })();
 </script>
 </body>
