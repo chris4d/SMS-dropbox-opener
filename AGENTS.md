@@ -27,6 +27,10 @@ CI (`.github\workflows\build-setup.yml`) runs the same scripts on windows-latest
 - Exit codes: 0 opened, 1 internal error, 2 bad scheme, 3 target not found.
 - `business` is the default account; supports `%20`-encoded URL paths;
   best-effort arg join handles unquoted callers (browsers quote `%1`).
+- Google Sites rejects `opendbx://` URLs in its link editor, so Sites pages
+  link through the GitHub Pages bridge `docs\open.html`
+  (`https://chris4d.github.io/SMS-dropbox-opener/open.html?p=<path>`); it
+  phone-homes nothing and only forwards to the scheme.
 
 ## When committing
 - One logical commit per change.

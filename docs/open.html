@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Opening in Dropbox…</title>
+<style>
+  body { font-family: "Segoe UI", system-ui, sans-serif; background: #f6f6f6;
+         color: #333; display: flex; height: 100vh; margin: 0; }
+  main { margin: auto; max-width: 560px; padding: 2rem; background: #fff;
+         border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+  h1 { font-size: 1.2rem; margin: 0 0 .5rem; }
+  p { line-height: 1.5; margin: .5rem 0; }
+  code { background: #eef; padding: .1rem .4rem; border-radius: 4px;
+         word-break: break-all; }
+  button { margin-top: 1rem; padding: .4rem .8rem; border: 1px solid #888;
+           border-radius: 4px; background: #eee; cursor: pointer; }
+  #fallback { display: none; color: #7a4e00; }
+</style>
+</head>
+<body>
+<main>
+  <div id="status"><h1 id="heading">Opening…</h1><p id="detail"></p></div>
+  <div id="fallback">
+    <h1>The folder didn't open.</h1>
+    <p>The location was:</p>
+    <p><code id="target"></code></p>
+    <p>Either the <strong>SMS DropboxOpener</strong> helper isn't installed on
+       this machine, or this folder isn't synced locally. Please let IT know
+       (include the location above).</p>
+    <button id="copy">Copy location</button>
+  </div>
+</main>
+<script>
+(function () {
+  var u = new URLSearchParams(location.search);
+  var p = (u.get('p') || '').trim();
+  var status = document.getElementById('status');
+  var fallback = document.getElementById('fallback');
+
+  if (!p) {
+    status.querySelector('h1').textContent = 'No location given.';
+    status.querySelector('p').textContent =
+      'This page is meant to be reached from an intranet link, e.g. open.html?p=Projects.';
+    return;
+  }
+
+  // Build opendbx://business/<path> — the prefix is fixed, never attacker-derived.
+  var target = 'opendbx://' +
+    p.split('/').map(encodeURIComponent).join('/');
+
+  status.querySelector('p').appendChild(
+    Object.assign(document.createElement('span'), { textContent: target })
+  );
+
+  // If the helper handles the request, this page unloads and the
+  // fallback is never painted. Otherwise it explains what happened.
+  setTimeout(function () {
+    status.style.display = 'none';
+    document.getElementById('target').textContent = target;
+    fallback.style.display = 'block';
+  }, 1200);
+
+  document.getElementById('copy').addEventListener('click', function () {
+    navigator.clipboard.writeText(target).then(function () {
+      this.textContent = 'Copied!';
+    }.bind(this));
+  });
+
+  try { location.replace(target); } catch (e) { /* fallback stays visible */ }
+})();
+</script>
+</body>
+</html>

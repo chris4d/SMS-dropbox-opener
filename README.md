@@ -3,31 +3,37 @@
 Windows 11 helper that makes `opendbx://` links in the internal Google Sites
 open the matching local Dropbox folder in Windows Explorer.
 
-Example link for a Sites page:
+## Sites page authors
+
+Google Sites rejects `opendbx://` URLs in its link editor (it requires a
+valid TLD). Instead, link to the bridge page, which redirects to the scheme:
 
 ```
-<a href="opendbx://business/Projects">Open Projects in Explorer</a>
+https://chris4d.github.io/SMS-dropbox-opener/open.html?p=Projects/Contracts%20Folder
 ```
 
-- `business`/`personal` is an optional first segment (defaults to `business`).
-- The rest is the path relative to the Dropbox root. The helper resolves it
-  against the team root first (`root_path` in `info.json`), then the user's
-  own folder, opening whichever matches.
+- `p` is the path relative to the Dropbox root (`/`-separated, spaces as `%20`).
+  An optional leading `business/` or `personal/` segment selects the account
+  (default `business`).
+- The helper resolves the path against the team root first (`root_path` in
+  `info.json`), then the user's own folder, opening whichever matches.
 - Works for folders and files (files open in Explorer with `/select`).
-- Bad/missing target exits silently with code 3 — the helper never shows UI.
+- Bad/missing target exits silently with code 3 - the helper never shows UI.
 
 ## Security posture
 
 - The URL carries only a filesystem location; the helper never executes
-  anything — it only asks `explorer.exe` to navigate (or `/select` a file).
+  anything - it only asks `explorer.exe` to navigate (or `/select` a file).
+- The bridge page (`docs/open.html`, hosted on GitHub Pages) is a static file
+  that only constructs `opendbx://` URLs - it adds no server, endpoints, or
+  state. The helper's Dropbox-root sandbox is the security boundary.
 - No origin whitelisting is possible at the Windows protocol layer (like
   `mailto:` protocols). Suppress the browser's one-time approval prompt
   fleet-wide with Chrome/Edge policy `AutoLaunchProtocolsFromOrigins`
-  scoped to the Google Sites origin, pushed via GPO.
+  scoped to `https://chris4d.github.io`, pushed via GPO.
 - Links are sandboxed to the Dropbox roots: traversal (`..`), drive-absolute
   (`C:/...`), UNC (`//server`), and invalid path characters are all rejected
   (exit 3, nothing launched).
-
 
 ## Install / verify / repair
 
