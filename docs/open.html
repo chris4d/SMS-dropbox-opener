@@ -52,6 +52,14 @@
     p.split('/').map(encodeURIComponent).join('/');
   targetLabel.textContent = target;
 
+  // Firefox allows top-frame external-protocol navigation from script,
+  // so on it we skip the button entirely: link click -> folder opens.
+  // Chromium browsers (Chrome, Edge) require a user gesture for the
+  // launch, which the button click provides.
+  if (navigator.userAgent.indexOf('Firefox') >= 0) {
+    try { location.replace(target); } catch (e) { /* button stays */ }
+  }
+
   function launch() {
     trouble.style.display = 'none';
     // A user gesture is required for custom-scheme navigation in
