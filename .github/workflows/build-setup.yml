@@ -39,9 +39,11 @@ jobs:
           name: Setup-SMS-DropboxOpener
           path: installer/output/*.exe
 
-      - name: Publish release (tag push only)
+      - name: Upload release files (tag push only)
         if: github.event_name == 'push'
         uses: softprops/action-gh-release@v2
         with:
-          files: installer/output/*.exe
+          files: |
+            installer/output/*.exe
+            dist/*.crx
           generate_release_notes: true
