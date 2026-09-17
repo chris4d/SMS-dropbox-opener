@@ -183,7 +183,50 @@ namespace DropboxOpener
             int firstQuote = json.IndexOf('"', idx + member.Length + 2);
             int lastQuote = firstQuote >= 0 ? json.IndexOf('"', firstQuote + 1) : -1;
             if (lastQuote < 0) return null;
-            return json.Substring(firstQuote + 1, lastQuote - firstQuote - 1);
+            // info.json claims to be JSON but isn't reliably minified; unescape the
+            // inline string ourselves ("C:\\SMS Dropbox" must become C:\SMS Dropbox,
+            // otherwise Explorer falls back to Documents on the mangled path).
+            return UnescapeJsonString(json.Substring(firstQuote + 1, lastQuote - firstQuote - 1));
+        }
+
+        static string UnescapeJsonString(string s)
+        {
+            var sb = new System.Text.StringBuilder(s.Length);
+            for (int i = 0; i < s.Length; i++)
+            {
+                char c = s[i];
+                if (c == '\\' && i + 1 < s.Length)
+                {
+                    char n = s[++i];
+                    switch (n)
+                    {
+                        case '\\': sb.Append('\\'); break;
+                        case '"': sb.Append('"'); break;
+                        case '/': sb.Append('/'); break;
+                        case 'n': sb.Append('\n'); break;
+                        case 'r': sb.Append('\r'); break;
+                        case 't': sb.Append('\t'); break;
+                        case 'b': sb.Append('\b'); break;
+                        case 'f': sb.Append('\f'); break;
+                        case 'u':
+                            short code;
+                            if (i + 4 < s.Length &&
+                                short.TryParse(s.Substring(i + 1, 4),
+                                    System.Globalization.NumberStyles.HexNumber,
+                                    System.Globalization.CultureInfo.InvariantCulture,
+                                    out code))
+                            {
+                                sb.Append((char)code);
+                                i += 4;
+                            }
+                            else sb.Append(n);
+                            break;
+                        default: sb.Append(n); break;
+                    }
+                }
+                else sb.Append(c);
+            }
+            return sb.ToString();
         }
     }
 }
