@@ -33,12 +33,20 @@ RestartApplications=no
 
 [Files]
 Source: "..\out\DropboxOpener.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\out\DropboxOpenerHost.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "com.sms.dropboxopener.json"; DestDir: "{app}"; Flags: ignoreversion
 
 [Registry]
-; URL Protocol handler — HKCU so no elevation is needed. All keys removed on uninstall.
+; URL Protocol handler - HKCU so no elevation is needed. All keys removed on uninstall.
 Root: HKCU; Subkey: "Software\Classes\opendbx"; ValueType: string; ValueName: ""; ValueData: "URL:Open Dropbox Folder"; Flags: uninsdeletekey
 Root: HKCU; Subkey: "Software\Classes\opendbx"; ValueType: string; ValueName: "URL Protocol"; ValueData: ""; Flags: uninsdeletevalue
 Root: HKCU; Subkey: "Software\Classes\opendbx\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\DropboxOpener.exe"" ""%1"""; Flags: uninsdeletekey
+
+; Native messaging host registrations (per-user, Chrome + Edge) so the browser
+; extension can reach the helper. Manifest is in {app}; its JSON "path" is
+; relative to that directory per Chromium's Windows rule.
+Root: HKCU; Subkey: "Software\Google\Chrome\NativeMessagingHosts\com.sms.dropboxopener"; ValueType: string; ValueName: ""; ValueData: "{app}\com.sms.dropboxopener.json"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Microsoft\Edge\NativeMessagingHosts\com.sms.dropboxopener"; ValueType: string; ValueName: ""; ValueData: "{app}\com.sms.dropboxopener.json"; Flags: uninsdeletekey
 
 [Run]
 Filename: "{app}\DropboxOpener.exe"; Flags: runhidden
