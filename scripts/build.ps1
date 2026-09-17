@@ -67,7 +67,9 @@ $updateXml = @"
 </gupdate>
 "@
 Set-ItemProperty -Path (Join-Path $root 'docs\updates.xml') -Name IsReadOnly -Value $false -ErrorAction SilentlyContinue
-$updateXml | Out-File (Join-Path $root 'docs\updates.xml') -Encoding utf8 -Force
+# UTF8 without BOM (Chrome's XML parser must see the prolog first)
+[IO.File]::WriteAllText((Join-Path $root 'docs\updates.xml'), $updateXml, (New-Object System.Text.UTF8Encoding($false)))
+
 
 # 5) Elevated policy-only installer (Chrome/Edge ExtensionSettings)
 & $iscc "/DAppVersion=$Version" (Join-Path $root 'installer\DropboxOpenerChrome.iss')
