@@ -2,3 +2,4 @@ out/
 installer/output/
 
 .playwright-mcp/
+*.png
