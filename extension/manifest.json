@@ -1,7 +1,7 @@
 {
   "name": "SMS DropboxOpener",
   "description": "Opens SMS Dropbox folders in Windows Explorer from intranet links.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "manifest_version": 3,
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr6VNz7ea1r+69T+/IoWlazx4OTAjtQ3mCqvBZrgQUjhycteABuky99atfLiGwZzLz5ZMYcWSbWkjRkaaQCGmAnzAo9CuPDK9YRoNVgFJ9gZd9vMNOgAJhkFroHw26+5a1PA+5+UVrOCI5+rI6SIF8T7jj1HJmdG0oF9SXnp5JLG4tc22E3+eaF+h7nXXKPzwuu4syBvRtDDiJpK7M/mzJ7YKIIfzzsb41SHWCSbea97YDg/EVTW6Jm6utn5OGemOwOs0TttdesN76dC6omC0ywYUoAIQgLZ2dnMvGHBe3/j5+O0w/sDUFVN8kBb/c/kqkv2cU6X6/xNmu+V0PoUuiQIDAQAB",
   "background": { "service_worker": "background.js" },
