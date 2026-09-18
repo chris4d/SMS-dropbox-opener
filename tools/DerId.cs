@@ -123,8 +123,10 @@ class DerId
         while (s < v.Length - 1 && v[s] == 0) s++;
         int body = v.Length - s;
         bool pad = (v[s] & 0x80) != 0;
-        byte[] head = pad ? Cat(new byte[] { 0x02, (byte)(body + 1), 0 })
-                          : Cat(new byte[] { 0x02 }, Len(body));
+        // DER INTEGER: length is the CONTENT length (value bytes incl. sign pad),
+        // always multi-byte encoded via Len() - a 256-byte modulus needs 82 01 01.
+        byte[] head = Cat(new byte[] { 0x02 }, Len(body + (pad ? 1 : 0)));
+        if (pad) head = Cat(head, new byte[] { 0 });
         byte[] content = new byte[body];
         Buffer.BlockCopy(v, s, content, 0, body);
         return Cat(head, content);

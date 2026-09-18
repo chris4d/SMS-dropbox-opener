@@ -32,6 +32,26 @@ CI (`.github\workflows\build-setup.yml`) runs the same scripts on windows-latest
   (`https://chris4d.github.io/SMS-dropbox-opener/open.html?p=<path>`); it
   phone-homes nothing and only forwards to the scheme.
 
+## Browser extension (one-click flow)
+- `extension/` = MV3 extension (ID `mcedhcfdcbpampgjgbchfhaafpefbfbl`,
+  derived from `extension_key.pem` via `tools\DerId.cs`; `scripts\build.ps1`
+  verifies the packed CRX's ID and refuses to ship on mismatch).
+- Intercepts bridge-page navigations and opens folders through the native
+  messaging host `DropboxOpenerHost.exe` (`src\NativeHost.cs`); without the
+  extension the bridge page's button remains the two-click fallback.
+- Policy facts (proven via edge://policy schema errors - do not regress):
+  - `ExtensionSettings` is a DICTIONARY policy: on Windows each extension is
+    a registry VALUE NAMED by its extension ID under the policy key; data is
+    that extension's JSON. Never write one JSON blob at the (default) name.
+  - Self-hosted source property is `update_url` (NOT `install_url` - rejected
+    as unknown; `update_url` is REQUIRED for `force_installed` entries).
+  - `ExtensionInstallForcelist` does NOT install self-hosted CRXs (web store
+    only); use `ExtensionSettings` with `installation_mode: force_installed`.
+  - `updates.xml` appid must equal the CRX ID; its version attribute must
+    equal the CRX's manifest version (build reads it from manifest.json).
+- Elevated `Setup-SMS-DropboxOpenerChrome-v*.exe` writes those HKLM policies
+  for Chrome + Edge; uninstall is surgical (values are namespaced by ext ID).
+
 ## When committing
 - One logical commit per change.
 - Do not stage anything under `out/` or `installer/output/`.

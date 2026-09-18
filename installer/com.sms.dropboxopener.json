@@ -3,5 +3,5 @@
   "description": "SMS DropboxOpener native messaging host",
   "path": "DropboxOpenerHost.exe",
   "type": "stdio",
-  "allowed_origins": [ "chrome-extension://aimnddiifblldaaacgldllnnnefoahfj/" ]
+  "allowed_origins": [ "chrome-extension://mcedhcfdcbpampgjgbchfhaafpefbfbl/" ]
 }

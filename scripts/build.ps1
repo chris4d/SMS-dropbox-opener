@@ -55,14 +55,49 @@ Push-Location $root
 Pop-Location
 $crx = Join-Path $root 'extension.crx'
 if (-not (Test-Path $crx)) { throw "CRX not produced" }
+
+# Guard: the packed CRX must carry the expected extension ID (browsers reject
+# a force-installed CRX whose signature ID differs from the policy's). The ID
+# is SHA256(SPKI) of the embedded signing key, hex digits mapped to a-p.
+function Get-CrxId([string]$path) {
+    $bytes = [IO.File]::ReadAllBytes($path)
+    $hlen = [BitConverter]::ToUInt32($bytes, 8)
+    $header = New-Object byte[] $hlen
+    [Array]::Copy($bytes, 12, $header, 0, $hlen)
+    $pat = [byte[]](0x30,0x82,0x01,0x22,0x30,0x0d,0x06,0x09,0x2a,0x86,0x48,0x86,0xf7,0x0d,0x01,0x01,0x01,0x05,0x00,0x03,0x82,0x01,0x0f)
+    $found = -1
+    for ($i = 0; $i -le $header.Length - $pat.Length; $i++) {
+        $ok = $true
+        for ($j = 0; $j -lt $pat.Length; $j++) { if ($header[$i+$j] -ne $pat[$j]) { $ok = $false; break } }
+        if ($ok) { $found = $i; break }
+    }
+    if ($found -lt 0) { throw "No SPKI found in CRX header - not a valid CRX3?" }
+    $spki = New-Object byte[] 294
+    [Array]::Copy($header, $found, $spki, 0, 294)
+    $sha = [Security.Cryptography.SHA256]::Create().ComputeHash($spki)
+    $hex = ($sha | ForEach-Object { $_.ToString('x2') }) -join ''
+    $map = 'abcdefghijklmnop'
+    -join (0..31 | ForEach-Object { $map[[Convert]::ToInt32($hex[$_].ToString(), 16)] })
+}
+$expectedId = 'mcedhcfdcbpampgjgbchfhaafpefbfbl'
+$actualId = Get-CrxId $crx
+if ($actualId -ne $expectedId) {
+    throw "CRX ID mismatch: packed '$actualId' but expected '$expectedId' - key/manifest inconsistency; refusing to ship"
+}
+Write-Host "CRX ID verified: $actualId"
+
 Move-Item $crx (Join-Path $dist 'SMS-DropboxOpener-Chrome.crx') -Force
 
 # 4) updates.xml (self-hosted update manifest served from GitHub Pages docs/)
+#    The version attribute must match the CRX's manifest version (the updater
+#    cross-checks them), so read it from extension\manifest.json - not the
+#    installer version.
+$extVersion = (Get-Content (Join-Path $root 'extension\manifest.json') -Raw | ConvertFrom-Json).version
 $updateXml = @"
 <?xml version="1.0" encoding="UTF-8"?>
 <gupdate xmlns="http://www.google.com/update2/response" protocol="2.0">
-  <app appid="aimnddiifblldaaacgldllnnnefoahfj">
-    <updatecheck codebase="https://github.com/chris4d/SMS-dropbox-opener/releases/latest/download/SMS-DropboxOpener-Chrome.crx" version="$Version" />
+  <app appid="mcedhcfdcbpampgjgbchfhaafpefbfbl">
+    <updatecheck codebase="https://github.com/chris4d/SMS-dropbox-opener/releases/latest/download/SMS-DropboxOpener-Chrome.crx" version="$extVersion" />
   </app>
 </gupdate>
 "@

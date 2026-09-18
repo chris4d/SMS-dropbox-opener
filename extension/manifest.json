@@ -3,7 +3,7 @@
   "description": "Opens SMS Dropbox folders in Windows Explorer from intranet links.",
   "version": "1.0.0",
   "manifest_version": 3,
-  "key": "MIIBIDANBgkqhkiG9w0BAQEFAAOCAQ0AMIIBCAIBAK+lTc+3mta/uvU/vyKFpWs8eDkwI7UN5gqrwWa4EFI4cnLXgAbpMvfWrXy4hsGcy8+WTGHFkm1pI0ZGmkAhpgJ8wKPQrjwyvWEaDVYBSfYGXfbzDToACYZBa6B8NuvuWtTwPuflFazgiOfqyOkiBfE+449RyZnRtKBfUl56eSSxuLXNthN/nmhfoe511yj88LruLMgb0bQw4iaSuzP5sye2CiCH887G+NUh1gkm3mve2A4PxFU1uiZurrZ+ThnpjsDrNE7bXXrDe+nQuqJgtMsGFKACEIC2dnZzLxhwXt/4+fjtMP7A1BVTfJAW/3P5KpL9nFOl+v8TZrvldD6FLokCAwEAAQ==",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr6VNz7ea1r+69T+/IoWlazx4OTAjtQ3mCqvBZrgQUjhycteABuky99atfLiGwZzLz5ZMYcWSbWkjRkaaQCGmAnzAo9CuPDK9YRoNVgFJ9gZd9vMNOgAJhkFroHw26+5a1PA+5+UVrOCI5+rI6SIF8T7jj1HJmdG0oF9SXnp5JLG4tc22E3+eaF+h7nXXKPzwuu4syBvRtDDiJpK7M/mzJ7YKIIfzzsb41SHWCSbea97YDg/EVTW6Jm6utn5OGemOwOs0TttdesN76dC6omC0ywYUoAIQgLZ2dnMvGHBe3/j5+O0w/sDUFVN8kBb/c/kqkv2cU6X6/xNmu+V0PoUuiQIDAQAB",
   "background": { "service_worker": "background.js" },
   "permissions": ["webNavigation", "nativeMessaging"],
   "host_permissions": [
