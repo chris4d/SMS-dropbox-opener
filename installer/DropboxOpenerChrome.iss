@@ -50,10 +50,10 @@ Source: "..\docs\open.html"; DestDir: "{app}"; Flags: ignoreversion deleteafteri
 ; Inno escaping inside ValueData: "" = double quote, {{ = literal '{'.
 
 Root: HKLM; Subkey: "SOFTWARE\Policies\Google\Chrome\ExtensionSettings"; ValueType: string; ValueName: "{#ExtId}"; \
-  ValueData: "{{""installation_mode"":""force_installed"",""update_url"":""https://chris4d.github.io/SMS-dropbox-opener/updates.xml""}"; \
+  ValueData: "{{""installation_mode"":""force_installed"",""minimum_version_required"":""1.0.2"",""update_url"":""https://chris4d.github.io/SMS-dropbox-opener/updates.xml""}"; \
   Flags: uninsdeletevalue
 Root: HKLM; Subkey: "SOFTWARE\Policies\Microsoft\Edge\ExtensionSettings"; ValueType: string; ValueName: "{#ExtId}"; \
-  ValueData: "{{""installation_mode"":""force_installed"",""update_url"":""https://chris4d.github.io/SMS-dropbox-opener/updates.xml""}"; \
+  ValueData: "{{""installation_mode"":""force_installed"",""minimum_version_required"":""1.0.2"",""update_url"":""https://chris4d.github.io/SMS-dropbox-opener/updates.xml""}"; \
   Flags: uninsdeletevalue
 
 [UninstallDelete]

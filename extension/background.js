@@ -33,8 +33,14 @@ chrome.webNavigation.onCommitted.addListener(async (details) => {
     if (resp && resp.ok === false) {
       // Unknown target: put the bridge page back so the user sees guidance.
       chrome.tabs.update(details.tabId, { url: details.url });
+      return;
     }
-    // success: folder opened; tab stays blank
+    // Success: return the tab to where the user came from. If there is no
+    // history (direct nav, bookmark, middle-click on a fresh tab), the tab
+    // was pure transit - close it instead of leaving an about:blank shell.
+    try { await chrome.tabs.goBack(details.tabId); }
+    catch (_) { try { await chrome.tabs.remove(details.tabId); } catch (_) { /* tab already gone */ } }
+    // success: folder opened; tab is back on Sites (or closed)
   } catch (e) {
     // Native host missing/not registered: fall back to the bridge page.
     chrome.tabs.update(details.tabId, { url: details.url });

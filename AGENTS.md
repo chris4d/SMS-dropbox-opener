@@ -49,6 +49,8 @@ CI (`.github\workflows\build-setup.yml`) runs the same scripts on windows-latest
     only); use `ExtensionSettings` with `installation_mode: force_installed`.
   - `updates.xml` appid must equal the CRX ID; its version attribute must
     equal the CRX's manifest version (build reads it from manifest.json).
+  - `minimum_version_required` in the policy JSON forces immediate updates on
+    policy re-evaluation (extension auto-updates alone are lazy, can lag hours).
 - Elevated `Setup-SMS-DropboxOpenerChrome-v*.exe` writes those HKLM policies
   for Chrome + Edge; uninstall is surgical (values are namespaced by ext ID).
 
