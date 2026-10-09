@@ -19,7 +19,7 @@
 AppId={#AppId}
 AppName={#AppName}
 AppVersion={#AppVersion}
-AppPublisher=SMS Architecture
+AppPublisher=Scott Mitchell Studio
 DefaultDirName={win}\Temp\SMS-DropboxOpenerChrome
 OutputDir=output
 OutputBaseFilename=Setup-{#AppNameNoSpace}-v{#AppVersion}
