@@ -30,8 +30,11 @@ DisableProgramGroupPage=yes
 DisableDirPage=yes
 DisableReadyPage=yes
 RestartApplications=no
+SetupIconFile=assets\app-icon.ico
+UninstallDisplayIcon={app}\app-icon.ico
 
 [Files]
+Source: "assets\app-icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\out\DropboxOpener.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\out\DropboxOpenerHost.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "com.sms.dropboxopener.json"; DestDir: "{app}"; Flags: ignoreversion
